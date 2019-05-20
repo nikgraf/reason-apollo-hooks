@@ -9,8 +9,6 @@ let apolloClient =
   ReasonApollo.createApolloClient(~link=httpLink, ~cache=inMemoryCache, ());
 
 ReactDOMRe.renderToElementWithId(
-  <ReasonApollo.Provider client=apolloClient>
-    <ApolloHooks.Provider client=apolloClient> <App /> </ApolloHooks.Provider>
-  </ReasonApollo.Provider>,
+  <Apollo.Provider client=apolloClient> <App /> </Apollo.Provider>,
   "root",
 );

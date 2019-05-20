@@ -1,4 +1,4 @@
-module RestaurantNames = [%graphql
+module Restaurants = [%graphql
   {|
     query {
       restaurants {
@@ -9,38 +9,24 @@ module RestaurantNames = [%graphql
   |}
 ];
 
-// module RestaurantNamesQuery = ReasonApollo.CreateQuery(RestaurantNames);
-
-let query = RestaurantNames.make();
+module RestaurantsQuery = Apollo.CreateQuery(Restaurants);
 
 [@react.component]
 let make = () => {
-  let (count, setCount) = React.useState(() => 0);
-  let result = ApolloHooks.useQuery(~query);
-  Js.log2("weee" , result);
+  let query = RestaurantsQuery.useQuery();
 
   <div>
-    <p> {React.string(" clicked " ++ string_of_int(count) ++ " times")} </p>
-    <button onClick={_ => setCount(_ => count + 1)}>
-      {React.string("Click me")}
-    </button>
+    {switch (query.result) {
+     | Loading => <div> {React.string("Loading...")} </div>
+     | Error(error) => <div> {React.string(error##message)} </div>
+     | Data(response) =>
+       <ul>
+         {response##restaurants
+          ->Belt.Array.map(restaurant =>
+              <li key={restaurant##id}> {React.string(restaurant##name)} </li>
+            )
+          ->React.array}
+       </ul>
+     }}
   </div>;
-  // <RestaurantNamesQuery>
-  //   ...{({result}) =>
-  //     switch (result) {
-  //     | Loading => <div> {React.string("Loading")} </div>
-  //     | Error(error) => <div> {React.string(error##message)} </div>
-  //     | Data(response) =>
-  //       <ul>
-  //         {response##restaurants
-  //          ->Belt.Array.map(restaurant =>
-  //              <li key={restaurant##id}>
-  //                {React.string(restaurant##name)}
-  //              </li>
-  //            )
-  //          ->React.array}
-  //       </ul>
-  //     }
-  //   }
-  // </RestaurantNamesQuery>
 };
